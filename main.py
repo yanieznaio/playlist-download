@@ -9,13 +9,21 @@ from pytube import YouTube
 
 
 
+#utilisation de l'API spotify 
+
 load_dotenv()
+
+#récuperation des données du fichier .env
+#données personnels et à récuperer sur le site https://developer.spotify.com/
 
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
 
+#demande à l'utilisateur le lien d'une playist spotify
+#demande à l'utilisateur un nom pour le dossier à creer
 playlist_link = input("Entrez lien de la Playlist Spotify à télecharger: ")
 directory_folder_name = input("Quel nom souhaitez-vous donner à votre playList ? : ")
+
 # Parent Directory path
 parent_dir = "/home/ignite/Musique/"
 # Path
@@ -27,11 +35,13 @@ except OSError as error:
 print("démarrage du télechargement de la Playlist'% s' " % directory_folder_name)
 
 
+
+# utilisation de l'API spotify
 client_credentials_manager = SpotifyClientCredentials(client_id, client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 
-# télécharger l'audio dans le dossier créer précédemment
+# télécharge la musique dans le dossier crées précédemment
 def download_audio(url):
 
     yt = YouTube(url)
@@ -46,6 +56,8 @@ def download_audio(url):
     else:
         print(f'ERROR: {yt.title}could not be downloaded!')
 
+# trouves le premier résultat de la chanson sur youtube 
+# utilisation de la playlist youtubesearchpython 
 
 def search_and_download(music):
     videosSearch = VideosSearch(music, limit=1)
@@ -61,15 +73,18 @@ if match := re.match(r"https://open.spotify.com/playlist/(.*)\?", playlist_link)
 else:
     raise ValueError("Expected format: https://open.spotify.com/playlist/...")
 
-# get list of tracks in a given playlist (note: max playlist length 100)
+# récupére la liste des morceaux de la playlist 
 tracks = sp.playlist_tracks(playlist_uri)["items"]
-# extract name and artist
+
+# extraction du nom et de l'artiste
+# appel de la fonction search_and_download pour télecharger
 for track in tracks:
     name = track["track"]["name"]
     artists = ", ".join(
         [artist["name"] for artist in track["track"]["artists"]]
     )
     song = name + " " + artists
+    
     search_and_download(song)
 
 
